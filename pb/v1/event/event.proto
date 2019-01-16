@@ -1,0 +1,46 @@
+syntax = "proto3";
+package event;
+
+import "google/api/annotations.proto";
+
+service EventService {
+    rpc List(ListRequest) returns (ListResponse){
+        option (google.api.http) = {
+            get: "/v1/event"
+        };
+    }
+    rpc Store(StoreRequest) returns (StoreResponse) {
+        option (google.api.http) = {
+            post: "/v1/event"
+            body: "*"
+        };
+    }
+}
+
+message Event {
+    string id = 1;
+    string body = 2;
+    string created_at = 3;
+}
+
+message ListRequest {
+    string api = 1;
+    string keyword = 2;
+}
+
+message ListResponse {
+    string api = 1;
+    repeated Event events = 2;
+}
+
+message StoreRequest {
+    string api = 1;
+    string body = 2;
+    string created_at = 3;
+}
+
+message StoreResponse {
+    string api = 1;
+    string id = 2;
+    bool success = 3;
+}
