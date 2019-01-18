@@ -2,10 +2,10 @@ package storage
 
 import (
 	"context"
-	"gemini/helper"
-	"log"
+	"pisces/helper"
 	"time"
 
+	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/bson/primitive"
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
@@ -47,9 +47,10 @@ func (s *eventImpl) Store(data *Event) (interface{}, error) {
 func (s *eventImpl) List() ([]Event, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	cur, err := s.coll.Find(ctx, nil)
+	cur, err := s.coll.Find(ctx, bson.D{})
 	if err != nil {
-		log.Fatal(err)
+		helper.Logging("Event", "List", err.Error())
+		return nil, err
 	}
 	defer cur.Close(ctx)
 

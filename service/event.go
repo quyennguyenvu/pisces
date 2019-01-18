@@ -2,9 +2,9 @@ package service
 
 import (
 	"encoding/json"
-	"gemini/pb/v1/event"
-	"gemini/storage"
 	"net/http"
+	"pisces/pb/v1/event"
+	"pisces/storage"
 	"time"
 )
 
@@ -12,7 +12,7 @@ import (
 type EventService interface {
 	Store(request *event.StoreRequest) Response
 	// ByID(strID string) Response
-	List() Response
+	List(request *event.ListRequest) Response
 }
 
 // eventServiceImpl ..
@@ -57,7 +57,7 @@ func (sc *eventServiceImpl) Store(request *event.StoreRequest) Response {
 }
 
 // List ..
-func (sc *eventServiceImpl) List() Response {
+func (sc *eventServiceImpl) List(request *event.ListRequest) Response {
 	events, err := sc.eventDS.List()
 	if err != nil || events == nil {
 		return Response{

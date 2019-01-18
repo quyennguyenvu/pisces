@@ -2,11 +2,13 @@
 This is a simple project about cqrs. It's including: how to connect to mongodb, work with gRPC and HTTP/REST. Code structure follows clean code (not fully, I guess :D).
 
 ## Setup project
-1. clone `.env.example` and change its name to `.env`
-2. create mongodb database with `event` collection
-3. This project uses `go dep` to manage dependencies. So after install `go dep` run `dep ensure`.
-4. RUN `go run cmd/main.go` or `go build cmd/main.go && ./main`
-5. Use whatever you like to test RESTful API (I personally like using insomnia). For event api I create 2 endpoints:
+1. clone project to $GOPATH/src
+2. clone `.env.example` and change its name to `.env`
+3. create mongodb database with `event` collection
+4. This project uses `go dep` to manage dependencies. So after install `go dep` run `dep ensure`.
+5. RUN `./bin-gen.sh`
+6. RUN in 2 terminals with following commands `./bin/command` and `./bin/query`
+7. Use whatever you like to test RESTful API (I personally like using insomnia). For event api I create 2 endpoints:
     - `curl -X GET 'http://localhost:8080/v1/event'` (for event list)
     - `curl -X POST 'http://localhost:8080/v1/event' -d '{"body": "test 3ewjrhewjfk"}'` (for create)
 

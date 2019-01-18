@@ -28,24 +28,7 @@ var _ status.Status
 var _ = runtime.String
 var _ = utilities.NewDoubleArray
 
-var (
-	filter_EventService_List_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
-
-func request_EventService_List_0(ctx context.Context, marshaler runtime.Marshaler, client EventServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRequest
-	var metadata runtime.ServerMetadata
-
-	if err := runtime.PopulateQueryParameters(&protoReq, req.URL.Query(), filter_EventService_List_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.List(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-
-}
-
-func request_EventService_Store_0(ctx context.Context, marshaler runtime.Marshaler, client EventServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_EventCommand_Store_0(ctx context.Context, marshaler runtime.Marshaler, client EventCommandClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StoreRequest
 	var metadata runtime.ServerMetadata
 
@@ -58,9 +41,26 @@ func request_EventService_Store_0(ctx context.Context, marshaler runtime.Marshal
 
 }
 
-// RegisterEventServiceHandlerFromEndpoint is same as RegisterEventServiceHandler but
+var (
+	filter_EventQuery_List_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
+func request_EventQuery_List_0(ctx context.Context, marshaler runtime.Marshaler, client EventQueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListRequest
+	var metadata runtime.ServerMetadata
+
+	if err := runtime.PopulateQueryParameters(&protoReq, req.URL.Query(), filter_EventQuery_List_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.List(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+// RegisterEventCommandHandlerFromEndpoint is same as RegisterEventCommandHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterEventServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterEventCommandHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -80,23 +80,23 @@ func RegisterEventServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.S
 		}()
 	}()
 
-	return RegisterEventServiceHandler(ctx, mux, conn)
+	return RegisterEventCommandHandler(ctx, mux, conn)
 }
 
-// RegisterEventServiceHandler registers the http handlers for service EventService to "mux".
+// RegisterEventCommandHandler registers the http handlers for service EventCommand to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterEventServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterEventServiceHandlerClient(ctx, mux, NewEventServiceClient(conn))
+func RegisterEventCommandHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterEventCommandHandlerClient(ctx, mux, NewEventCommandClient(conn))
 }
 
-// RegisterEventServiceHandler registers the http handlers for service EventService to "mux".
-// The handlers forward requests to the grpc endpoint over the given implementation of "EventServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "EventServiceClient"
+// RegisterEventCommandHandler registers the http handlers for service EventCommand to "mux".
+// The handlers forward requests to the grpc endpoint over the given implementation of "EventCommandClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "EventCommandClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "EventServiceClient" to call the correct interceptors.
-func RegisterEventServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client EventServiceClient) error {
+// "EventCommandClient" to call the correct interceptors.
+func RegisterEventCommandHandlerClient(ctx context.Context, mux *runtime.ServeMux, client EventCommandClient) error {
 
-	mux.Handle("GET", pattern_EventService_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_EventCommand_Store_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		if cn, ok := w.(http.CloseNotifier); ok {
@@ -114,43 +114,14 @@ func RegisterEventServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_EventService_List_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_EventCommand_Store_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventService_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("POST", pattern_EventService_Store_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		if cn, ok := w.(http.CloseNotifier); ok {
-			go func(done <-chan struct{}, closed <-chan bool) {
-				select {
-				case <-done:
-				case <-closed:
-					cancel()
-				}
-			}(ctx.Done(), cn.CloseNotify())
-		}
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_EventService_Store_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_EventService_Store_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventCommand_Store_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -158,13 +129,87 @@ func RegisterEventServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_EventService_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "event"}, ""))
-
-	pattern_EventService_Store_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "event"}, ""))
+	pattern_EventCommand_Store_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "event"}, ""))
 )
 
 var (
-	forward_EventService_List_0 = runtime.ForwardResponseMessage
+	forward_EventCommand_Store_0 = runtime.ForwardResponseMessage
+)
 
-	forward_EventService_Store_0 = runtime.ForwardResponseMessage
+// RegisterEventQueryHandlerFromEndpoint is same as RegisterEventQueryHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterEventQueryHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.Dial(endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
+
+	return RegisterEventQueryHandler(ctx, mux, conn)
+}
+
+// RegisterEventQueryHandler registers the http handlers for service EventQuery to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterEventQueryHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterEventQueryHandlerClient(ctx, mux, NewEventQueryClient(conn))
+}
+
+// RegisterEventQueryHandler registers the http handlers for service EventQuery to "mux".
+// The handlers forward requests to the grpc endpoint over the given implementation of "EventQueryClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "EventQueryClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "EventQueryClient" to call the correct interceptors.
+func RegisterEventQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, client EventQueryClient) error {
+
+	mux.Handle("GET", pattern_EventQuery_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		if cn, ok := w.(http.CloseNotifier); ok {
+			go func(done <-chan struct{}, closed <-chan bool) {
+				select {
+				case <-done:
+				case <-closed:
+					cancel()
+				}
+			}(ctx.Done(), cn.CloseNotify())
+		}
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_EventQuery_List_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_EventQuery_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+var (
+	pattern_EventQuery_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "event"}, ""))
+)
+
+var (
+	forward_EventQuery_List_0 = runtime.ForwardResponseMessage
 )

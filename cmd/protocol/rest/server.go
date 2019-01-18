@@ -2,7 +2,6 @@ package rest
 
 import (
 	"context"
-	"gemini/pb/v1/event"
 	"log"
 	"net/http"
 	"os"
@@ -13,17 +12,20 @@ import (
 	"google.golang.org/grpc"
 )
 
+// OptionFunc ..
+type OptionFunc func(context.Context, string)
+
+var mux *runtime.ServeMux
+var dialOpts []grpc.DialOption
+
 // RunServer ..
 func RunServer(ctx context.Context, grpcPort, httpPort string, opts ...runtime.ServeMuxOption) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	mux := runtime.NewServeMux(opts...)
-	dialOpts := []grpc.DialOption{grpc.WithInsecure()}
+	mux = runtime.NewServeMux(opts...)
+	dialOpts = []grpc.DialOption{grpc.WithInsecure()}
 
-	// event
-	if err := event.RegisterEventServiceHandlerFromEndpoint(ctx, mux, "localhost:"+grpcPort, dialOpts); err != nil {
-		return err
-	}
+	addServices(ctx, grpcPort)
 
 	srv := &http.Server{
 		Addr:    ":" + httpPort,
@@ -43,4 +45,15 @@ func RunServer(ctx context.Context, grpcPort, httpPort string, opts ...runtime.S
 
 	log.Printf("starting HTTP/REST gateway on port %s...\n", httpPort)
 	return srv.ListenAndServe()
+}
+
+func addServices(ctx context.Context, grpcPort string) {
+	optFuncs := []OptionFunc{
+		eventCommand(),
+		eventQuery(),
+	}
+
+	for _, optFunc := range optFuncs {
+		optFunc(ctx, "localhost:"+grpcPort)
+	}
 }

@@ -2,9 +2,9 @@ package storage
 
 import (
 	"context"
-	"gemini/config"
-	"gemini/helper"
 	"log"
+	"pisces/config"
+	"pisces/helper"
 	"sync"
 	"time"
 
@@ -28,7 +28,7 @@ func Connect() {
 		if err != nil {
 			helper.Logging("Storage", "Connect", err.Error())
 		}
-		log.Println("Connected")
+		log.Println("Database connected")
 		db = client.Database(conf.Database)
 	})
 }

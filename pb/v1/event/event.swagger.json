@@ -41,7 +41,7 @@
           }
         ],
         "tags": [
-          "EventService"
+          "EventQuery"
         ]
       },
       "post": {
@@ -65,7 +65,7 @@
           }
         ],
         "tags": [
-          "EventService"
+          "EventCommand"
         ]
       }
     }

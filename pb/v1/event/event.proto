@@ -3,16 +3,19 @@ package event;
 
 import "google/api/annotations.proto";
 
-service EventService {
-    rpc List(ListRequest) returns (ListResponse){
-        option (google.api.http) = {
-            get: "/v1/event"
-        };
-    }
+service EventCommand {
     rpc Store(StoreRequest) returns (StoreResponse) {
         option (google.api.http) = {
             post: "/v1/event"
             body: "*"
+        };
+    }
+}
+
+service EventQuery {
+    rpc List(ListRequest) returns (ListResponse){
+        option (google.api.http) = {
+            get: "/v1/event"
         };
     }
 }
