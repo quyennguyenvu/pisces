@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"sync"
 )
 
@@ -17,7 +16,7 @@ var natsInit sync.Once
 func GetNatsConnection() *NatsConnection {
 	natsInit.Do(func() {
 		confNats = &NatsConnection{
-			URL: os.Getenv("NATS_URL"),
+			URL: (*confEnv)["NATS_URL"],
 		}
 	})
 	return confNats

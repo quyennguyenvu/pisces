@@ -1,73 +1,97 @@
 package storage
 
 import (
-	"context"
-	"pisces/helper"
-	"time"
-
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/bson/primitive"
-	"github.com/mongodb/mongo-go-driver/mongo"
+	log "github.com/Sirupsen/logrus"
+	"github.com/jinzhu/gorm"
 )
 
 // Event ..
 type Event struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	Body      string             `bson:"body"`
-	CreatedAt time.Time          `bson:"created_at"`
+	gorm.Model
+	Body string
+}
+
+// TableName ...
+func (m Event) TableName() string {
+	return "events"
 }
 
 // EventStorage ..
 type EventStorage interface {
-	Store(data *Event) (interface{}, error)
-	// ByID(id int) (*Event, error)
-	List() ([]Event, error)
+	ByID(id int) (*Event, error)
+	Store(data *Event) (*Event, error)
+	List() (*[]*Event, error)
+	Update(data *Event) error
+	Destroy(data *Event) error
 }
 
 type eventImpl struct {
-	coll *mongo.Collection
+	db *gorm.DB
 }
 
 // NewEventStorage ..
 func NewEventStorage() EventStorage {
-	return &eventImpl{coll: db.Collection("events")}
+	return &eventImpl{db: db}
 }
 
-func (s *eventImpl) Store(data *Event) (interface{}, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	inserted, err := s.coll.InsertOne(ctx, data)
-	if err != nil {
-		helper.Logging("Event", "Store", err.Error())
-		return nil, err
+func (s *eventImpl) Store(data *Event) (*Event, error) {
+	result := s.db.Create(data)
+	if result.Error != nil {
+		log.WithFields(log.Fields{
+			"entity": "Event",
+			"method": "Store",
+		}).Error(result.Error.Error())
+		return nil, result.Error
 	}
-	return inserted.InsertedID, nil
+	return data, nil
 }
 
-func (s *eventImpl) List() ([]Event, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	cur, err := s.coll.Find(ctx, bson.D{})
-	if err != nil {
-		helper.Logging("Event", "List", err.Error())
-		return nil, err
+func (s *eventImpl) List() (*[]*Event, error) {
+	events := &[]*Event{}
+	result := s.db.Find(events)
+	if result.Error != nil {
+		log.WithFields(log.Fields{
+			"entity": "Event",
+			"method": "List",
+		}).Error(result.Error.Error())
+		return nil, result.Error
 	}
-	defer cur.Close(ctx)
-
-	events := []Event{}
-	for cur.Next(ctx) {
-		var event Event
-		if err := cur.Decode(&event); err != nil {
-			helper.Logging("Event", "List", err.Error())
-			return nil, err
-		}
-
-		events = append(events, event)
-	}
-	if err := cur.Err(); err != nil {
-		helper.Logging("Event", "List", err.Error())
-		return nil, err
-	}
-
 	return events, nil
+}
+
+func (s *eventImpl) ByID(id int) (*Event, error) {
+	event := &Event{}
+	result := s.db.First(&event, id)
+	if result.Error != nil {
+		log.WithFields(log.Fields{
+			"entity": "Todo",
+			"method": "ByID",
+		}).Error(result.Error.Error())
+		return nil, result.Error
+	}
+	return event, nil
+}
+
+func (s *eventImpl) Update(data *Event) error {
+	result := s.db.Save(data)
+	if result.Error != nil {
+		log.WithFields(log.Fields{
+			"entity": "Event",
+			"method": "Update",
+		}).Error(result.Error.Error())
+		return result.Error
+	}
+	return nil
+}
+
+func (s *eventImpl) Destroy(data *Event) error {
+	result := s.db.Delete(data)
+	if result.Error != nil {
+		log.WithFields(log.Fields{
+			"entity": "Event",
+			"method": "Destroy",
+		}).Error(result.Error.Error())
+		return result.Error
+	}
+	return nil
 }

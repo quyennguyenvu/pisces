@@ -7,29 +7,29 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+var f *os.File
+
 // Logging ..
-func Logging(entity, method, msg string) {
+func Logging() {
 	currentTime := time.Now()
 	strCurr := currentTime.Format("2006-01-02")
 
 	filename := "./logging/logfile-" + strCurr + ".log"
 	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
-	defer f.Close()
-
 	if err != nil {
-		log.Warn(err)
-	} else {
-		log.SetOutput(f)
-		log.SetFormatter(&log.JSONFormatter{})
-		log.SetLevel(log.WarnLevel)
+		log.Fatalf("error opening file: %v", err)
 	}
+
+	log.SetOutput(f)
+	log.SetLevel(log.DebugLevel)
 
 	Formatter := new(log.TextFormatter)
 	Formatter.TimestampFormat = "02-01-2006 15:04:05"
 	Formatter.FullTimestamp = true
+	log.SetFormatter(Formatter)
+}
 
-	log.WithFields(log.Fields{
-		"entity": entity,
-		"method": method,
-	}).Info(msg)
+// CloseFile ..
+func CloseFile() {
+	f.Close()
 }

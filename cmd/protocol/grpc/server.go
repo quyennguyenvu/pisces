@@ -14,7 +14,7 @@ import (
 type OptionFunc func(*grpc.Server)
 
 // RunServer ..
-func RunServer(ctx context.Context, grpcPort string, optFuncs ...OptionFunc) error {
+func RunServer(ctx context.Context, grpcPort string, optFuncs []OptionFunc) error {
 	listen, err := net.Listen("tcp", ":"+grpcPort)
 	if err != nil {
 		return err

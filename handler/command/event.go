@@ -2,13 +2,11 @@ package command
 
 import (
 	"context"
-	"log"
 	"pisces/handler"
-	"pisces/helper"
 	"pisces/pb/v1/event"
 	"pisces/service"
 
-	"github.com/mongodb/mongo-go-driver/bson/primitive"
+	log "github.com/Sirupsen/logrus"
 )
 
 // EventCommand ..
@@ -32,13 +30,16 @@ func (h *eventCommandImpl) Store(ctx context.Context, request *event.StoreReques
 	log.Println("Creating event")
 	response := h.eventSC.Store(request)
 	if response.Err != nil {
-		helper.Logging("Event", "Store", response.Err.Error())
+		log.WithFields(log.Fields{
+			"entity": "Event command",
+			"method": "Store",
+		}).Warning(response.Err.Error())
 		return nil, response.Err
 	}
 
 	storedEvent := &event.StoreResponse{
 		Api:     handler.APIVersion,
-		Id:      response.Data.(primitive.ObjectID).Hex(),
+		Id:      uint64(response.Data.(uint)),
 		Success: true,
 	}
 
@@ -48,7 +49,10 @@ func (h *eventCommandImpl) Store(ctx context.Context, request *event.StoreReques
 		"Event.Store",
 		storedEvent,
 	); err != nil {
-		helper.Logging("Event", "Store", err.Error())
+		log.WithFields(log.Fields{
+			"entity": "Event command",
+			"method": "Publish",
+		}).Warning(err.Error())
 	}
 
 	return storedEvent, nil

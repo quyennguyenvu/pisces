@@ -5,13 +5,15 @@ import (
 	"pisces/pb/v1/event"
 )
 
-func eventCommand() OptionFunc {
+// WithEventCommand ..
+func WithEventCommand() OptionFunc {
 	return func(ctx context.Context, port string) {
 		event.RegisterEventCommandHandlerFromEndpoint(ctx, mux, port, dialOpts)
 	}
 }
 
-func eventQuery() OptionFunc {
+// WithEventQuery ..
+func WithEventQuery() OptionFunc {
 	return func(ctx context.Context, port string) {
 		event.RegisterEventQueryHandlerFromEndpoint(ctx, mux, port, dialOpts)
 	}

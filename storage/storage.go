@@ -1,34 +1,34 @@
 package storage
 
 import (
-	"context"
-	"log"
 	"pisces/config"
-	"pisces/helper"
 	"sync"
-	"time"
 
-	"github.com/mongodb/mongo-go-driver/mongo"
+	log "github.com/Sirupsen/logrus"
+	"github.com/jinzhu/gorm"
 )
 
-var db *mongo.Database
+var db *gorm.DB
 var once sync.Once
 
 // Connect database
 func Connect() {
 	once.Do(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-		defer cancel()
 		conf := config.GetConnection()
-		client, err := mongo.Connect(ctx, conf.DataSource)
+		var err error
+		db, err = gorm.Open(conf.Driver, conf.DataSource)
 		if err != nil {
-			helper.Logging("Storage", "Connect", err.Error())
-		}
-		err = client.Connect(ctx)
-		if err != nil {
-			helper.Logging("Storage", "Connect", err.Error())
+			log.WithFields(log.Fields{
+				"entity": "Storage",
+				"method": "Connect",
+			}).Error(err.Error())
 		}
 		log.Println("Database connected")
-		db = client.Database(conf.Database)
+		db.LogMode(conf.LogMode)
 	})
+}
+
+// Disconnect ..
+func Disconnect() {
+	db.Close()
 }

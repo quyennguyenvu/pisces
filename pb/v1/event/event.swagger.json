@@ -75,7 +75,8 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "format": "uint64"
         },
         "body": {
           "type": "string"
@@ -120,7 +121,8 @@
           "type": "string"
         },
         "id": {
-          "type": "string"
+          "type": "string",
+          "format": "uint64"
         },
         "success": {
           "type": "boolean",

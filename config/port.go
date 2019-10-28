@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"sync"
 )
 
@@ -20,10 +19,10 @@ var portInit sync.Once
 func GetPort() *Port {
 	portInit.Do(func() {
 		confPort = &Port{
-			CmdHTTPPort: os.Getenv("CMD_HTTP_PORT"),
-			CmdGRPCPort: os.Getenv("CMD_GRPC_PORT"),
-			QryHTTPPort: os.Getenv("QRY_HTTP_PORT"),
-			QryGRPCPort: os.Getenv("QRY_GRPC_PORT"),
+			CmdHTTPPort: (*confEnv)["CMD_HTTP_PORT"],
+			CmdGRPCPort: (*confEnv)["CMD_GRPC_PORT"],
+			QryHTTPPort: (*confEnv)["QRY_HTTP_PORT"],
+			QryGRPCPort: (*confEnv)["QRY_GRPC_PORT"],
 		}
 	})
 	return confPort

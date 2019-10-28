@@ -12,7 +12,7 @@ type OptionFunc func(*nats.EncodedConn)
 
 // Run ..
 func Run() {
-	log.Println("Subscribe bitches!!")
+	log.Println("Subscribe!!")
 
 	natsConn := handler.GetConnection()
 	optFuncs := []OptionFunc{

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"pisces/pb/v1/event"
 	"pisces/storage"
-	"time"
 )
 
 // EventService ..
@@ -29,15 +28,8 @@ func NewEventService() EventService {
 
 // Store ..
 func (sc *eventServiceImpl) Store(request *event.StoreRequest) Response {
-	var createdAt time.Time
-	if request.CreatedAt != "" {
-		createdAt, _ = time.Parse("2006-01-02 15:04:05", request.CreatedAt)
-	} else {
-		createdAt = time.Now()
-	}
 	event := storage.Event{
-		Body:      request.Body,
-		CreatedAt: createdAt,
+		Body: request.Body,
 	}
 
 	inserted, err := sc.eventDS.Store(&event)
@@ -50,7 +42,7 @@ func (sc *eventServiceImpl) Store(request *event.StoreRequest) Response {
 	}
 
 	return Response{
-		Data: inserted,
+		Data: inserted.ID,
 		Code: http.StatusOK,
 		Err:  nil,
 	}

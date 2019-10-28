@@ -2,12 +2,11 @@ package handler
 
 import (
 	"context"
-	"log"
 	"pisces/config"
-	"pisces/helper"
 	"sync"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	nats "github.com/nats-io/go-nats"
 	natsp "github.com/nats-io/go-nats/encoders/protobuf"
 )
@@ -29,13 +28,17 @@ func Connect() {
 		conf := config.GetNatsConnection()
 		conn, err := nats.Connect(conf.URL)
 		if err != nil {
-			log.Fatal(err)
-			helper.Logging("Handler", "Connect", err.Error())
+			log.WithFields(log.Fields{
+				"entity": "Event handler",
+				"method": "Connect",
+			}).Error(err.Error())
 		}
 		encodedConn, err = nats.NewEncodedConn(conn, natsp.PROTOBUF_ENCODER)
 		if err != nil {
-			log.Fatal(err)
-			helper.Logging("Handler", "Encoded Connect", err.Error())
+			log.WithFields(log.Fields{
+				"entity": "Event handler",
+				"method": "Encoded Connect",
+			}).Error(err.Error())
 		}
 		log.Println("NATS connected")
 	})
